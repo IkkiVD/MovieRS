@@ -20,5 +20,7 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('recommend/<int:user_id>/<int:n>/', views.recommend_top_n)
+    path('recommend/<int:user_id>/<int:n>/', views.recommend_top_n),
+    path('movies', views.get_movies),
+    path('movies/<int:id>', views.get_movie)
 ]

@@ -1,11 +1,11 @@
 import Header from "@components/header";
 import Head from "next/head";
 
-const homePage = () => {
+const recommendationsIndex = () => {
   return (
     <>
       <Head>
-        <title>HomePage - MovieRS</title>
+        <title>Recommendations - MovieRS</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -16,4 +16,4 @@ const homePage = () => {
     </>
   );
 };
-export default homePage;
+export default recommendationsIndex;

@@ -37,3 +37,12 @@ def recommend_top_n(request, user_id, n=10):
 
     # Return result as JSON
     return HttpResponse(json.dumps(top_n_predictions), content_type="application/json")
+
+def get_movies(request):
+    movies_json = movies_df.to_dict(orient='records')
+    return HttpResponse(json.dumps(movies_json), content_type="application/json")
+
+def get_movie(request, id:int):
+    movie_json = movies_df[movies_df['movieId']==id].to_dict(orient='records')
+    return HttpResponse(json.dumps(movie_json), content_type="application/json")
+
