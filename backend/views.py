@@ -1,48 +1,89 @@
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import HttpResponse
+from django.http import JsonResponse
+from .model_tuning import *
 import pandas as pd
 import numpy as np
-import joblib
-import keras
+import threading
 import json
-
-
-model = keras.saving.load_model('data/movie_recommendation_model.keras')
-user_enc = joblib.load('data/user_enc.pkl')
-item_enc = joblib.load('data/item_enc.pkl')
-movies_df = pd.read_csv('data/movies.csv')
 
 movie_id_to_title = dict(zip(movies_df['movieId'], movies_df['title']))
 
+@csrf_exempt
 def recommend_top_n(request, user_id, n=10):
     # Encode the user_id to get recommendations for
     try:
         encoded_user_id = user_enc.transform([user_id])[0]
     except ValueError:
         return HttpResponse(f"User ID {user_id} not found.", status=400)
-
+ 
     # Get all the movie ids
     movie_input = np.arange(len(item_enc.classes_))
-
+ 
     user_input = np.full_like(movie_input, encoded_user_id) 
-
-    predictions = model.predict([user_input, movie_input]).flatten() #type: ignore
-    
+ 
+    predictions = global_model.predict([user_input, movie_input]).flatten() #type: ignore
+     
     predictions_dict = {item_enc.inverse_transform([movie_id])[0]: float(predicted_rating)
                         for movie_id, predicted_rating in zip(movie_input.flatten(), predictions)}
-
-    # Sort the dictionary on the predicted ratings and take the top n 
+ 
+     # Sort the dictionary on the predicted ratings and take the top n 
     sorted_predictions = sorted(predictions_dict.items(), key=lambda x: x[1], reverse=True)[:n]
-    
-    top_n_predictions = dict(sorted_predictions)
-
+     
+    top_n_recommendations = []
+    for title, predicted_rating in sorted_predictions:
+        movie_details = movies_df[movies_df['title'] == title].iloc[0]
+        top_n_recommendations.append({
+            "movieId": int(movie_details['movieId']),
+            "title": title,
+            "genres": movie_details['genres'],
+            "prediction": predicted_rating
+        }) 
     # Return result as JSON
-    return HttpResponse(json.dumps(top_n_predictions), content_type="application/json")
+    response = JsonResponse(top_n_recommendations, safe=False)
+    response["Access-Control-Allow-Origin"] = "*"
+    return response
 
 def get_movies(request):
     movies_json = movies_df.to_dict(orient='records')
     return HttpResponse(json.dumps(movies_json), content_type="application/json")
 
-def get_movie(request, id:int):
-    movie_json = movies_df[movies_df['movieId']==id].to_dict(orient='records')
-    return HttpResponse(json.dumps(movie_json), content_type="application/json")
 
+@csrf_exempt
+def give_rating(request, userId: int, movieId: int, rating: int):
+    if rating < 0.0 or rating > 5.0:
+        return HttpResponse("Rating must be between 0.0 and 5.0.", status=400)
+
+    ratings_file = 'data/ratings.csv'
+    try:
+        ratings_df = pd.read_csv(ratings_file)
+    except FileNotFoundError:
+        ratings_df = pd.DataFrame(columns=['userId', 'movieId', 'rating'])
+
+    existing_rating = ratings_df[
+        (ratings_df['userId'] == userId) & (ratings_df['movieId'] == movieId)
+    ]
+
+    if not existing_rating.empty:
+        ratings_df.loc[
+            (ratings_df['userId'] == userId) & (ratings_df['movieId'] == movieId),
+            'rating'
+        ] = rating
+    else:
+        new_rating = pd.DataFrame({
+            'userId': [userId],
+            'movieId': [movieId],
+            'rating': [rating],
+            'timestamp': [0]
+        })
+        ratings_df = pd.concat([ratings_df, new_rating], ignore_index=True)
+
+    try:
+        ratings_df.to_csv(ratings_file, index=False)
+    except Exception as e:
+        return HttpResponse(f"Failed to save rating: {str(e)}", status=500)
+
+    # Run it in the background, so it doesn't take a couple of seconds to return a 200 status
+    threading.Thread(target=retrain_model).start()
+
+    return HttpResponse("Rating saved and model updated successfully.", status=200)

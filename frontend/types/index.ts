@@ -4,7 +4,8 @@ export type StatusMessage = {
 };
 
 export type Movie = {
-  id: number;
+  movieId: number;
   title: string;
   genres: string;
+  prediction?: number;
 };

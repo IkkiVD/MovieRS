@@ -82,6 +82,7 @@ model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 
 print(model.summary())
 
-reduce_lr = keras.callbacks.ReduceLROnPlateau(monitor='val_loss', factor=0.75, patience=3, min_lr=0.000001, verbose=1)
+early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, verbose=1)
 
-history = model.fit(x = X_train_array, y = y_train, batch_size=128, epochs=70, validation_data=(X_test_array, y_test), shuffle=True,callbacks=[reduce_lr])
+history = model.fit(x = X_train_array, y = y_train, batch_size=128, epochs=10, validation_data=(X_test_array, y_test), shuffle=True,callbacks=[early_stop])
+model.save("data/movie_recommendation_model.keras")
