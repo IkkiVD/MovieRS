@@ -23,6 +23,12 @@ const Header: React.FC = () => {
           >
             Recommendations
           </Link>
+          <Link
+            href="/login"
+            className=" px-4 text-xl text-white  hover:bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-lg"
+          >
+            Login
+          </Link>
         </nav>
       </header>
     </>

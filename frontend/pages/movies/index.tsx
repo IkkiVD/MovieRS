@@ -19,6 +19,7 @@ const moviesIndex = () => {
         status: "error",
       });
     }
+    return response.json();
   };
 
   const { data, isLoading, error } = useSWR("FetchMovies", fetcher);
@@ -34,7 +35,7 @@ const moviesIndex = () => {
       <main className="text-center md:mt-24 mx-auto md:w-3/5 lg:w-1/2">
         {isLoading && <p>Fetching the data...</p>}
         {error && <p className="text-red-600">{error.message}</p>}
-        {data && <MoviesOverview />}
+        {data && <MoviesOverview movies={data} />}
       </main>
     </div>
   );
