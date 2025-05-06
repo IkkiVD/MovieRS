@@ -87,3 +87,19 @@ def give_rating(request, userId: int, movieId: int, rating: int):
     threading.Thread(target=retrain_model).start()
 
     return HttpResponse("Rating saved and model updated successfully.", status=200)
+
+
+def get_ratings_of_user(request, userId : int):
+    rating_df = pd.read_csv("data/ratings.csv")
+    movie_df = pd.read_csv("data/movies.csv")
+    merged_df = pd.merge(rating_df, movie_df, on="movieId", how="inner")
+
+    filtered_df = merged_df[merged_df["userId"]==userId]
+
+    user_ratings = filtered_df[["userId", "movieId", "title", "genres", "rating"]]
+    
+    user_ratings_list = user_ratings.to_dict(orient="records")
+    
+    response = JsonResponse(user_ratings_list, safe=False)
+    response["Access-Control-Allow-Origin"] = "*"
+    return response

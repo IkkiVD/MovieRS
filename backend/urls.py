@@ -22,5 +22,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('recommend/<int:user_id>/<int:n>/', views.recommend_top_n),
     path('movies', views.get_movies),
-    path('movies/rate/<int:userId>/movie/<int:movieId>/<int:rating>', views.give_rating)
+    path('movies/rate/<int:userId>/movie/<int:movieId>/<int:rating>', views.give_rating),
+    path('ratings/<int:userId>', views.get_ratings_of_user)
 ]

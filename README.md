@@ -115,7 +115,7 @@ The recommendation system is powered by a Deep Neural Network (DNN) that uses em
      ```
    - Start the frontend development server:
      ```bash
-     npm run dev
+     npm start
      ```
 
 ---
