@@ -7,6 +7,11 @@ import numpy as np
 import threading
 import json
 
+
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+
 movie_id_to_title = dict(zip(movies_df['movieId'], movies_df['title']))
 
 @csrf_exempt
@@ -84,7 +89,17 @@ def give_rating(request, userId: int, movieId: int, rating: int):
         return HttpResponse(f"Failed to save rating: {str(e)}", status=500)
 
     # Run it in the background, so it doesn't take a couple of seconds to return a 200 status
-    threading.Thread(target=retrain_model).start()
+    def retrain_wrapper():
+        try:
+            print("Starting retrain_model...")
+            retrain_model()
+            global global_model
+            global_model = keras.saving.load_model('data/movie_recommendation_model.keras')
+            print("Finished retrain_model and reloaded the updated model.")
+        except Exception as e:
+            print(f"Error in retrain_model: {e}")
+
+    threading.Thread(target=retrain_wrapper).start()
 
     return HttpResponse("Rating saved and model updated successfully.", status=200)
 

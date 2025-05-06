@@ -18,7 +18,9 @@ const homePage = () => {
           personalized recommendations.
         </p>
         <p className="mt-4 text-lg text-gray-700">
-          Navigate to the <strong>Movies</strong> tab to browse the available
+          Navigate to the <strong>Login</strong> tab and log in with a userId,
+          if you are a new user choose id 611. Once you are logged in you can
+          navigate to the <strong>Movies</strong> tab to browse the available
           movies and give them a rating out of 5. Based on your ratings, the
           system will recommend other movies tailored to your preferences, which
           you can find in the <strong>Recommendation</strong> tab.

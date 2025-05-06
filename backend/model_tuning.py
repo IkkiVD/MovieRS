@@ -55,6 +55,7 @@ def rebuild_model(n_users, n_movies, old_model=None):
     return new_model
 
 def retrain_model():
+    global global_model
     try:
         # Reload the updated ratings
         ratings_file = 'data/ratings.csv'
@@ -80,7 +81,6 @@ def retrain_model():
 
         # Rebuild the model with updated dimensions
         model = rebuild_model(n_users, n_movies, old_model=global_model) # type: ignore
-        print(model)
         # Prepare data for training
         X = refined_dataset[['user', 'movie']].values
         y = refined_dataset['rating'].values

@@ -5,7 +5,7 @@ import { useRouter } from "next/router";
 
 const RatingsPage: React.FC = () => {
   const router = useRouter();
-  const { movieId, title, genres } = router.query;
+  const { movieId, title, genres, rating } = router.query;
 
   return (
     <>
@@ -20,6 +20,7 @@ const RatingsPage: React.FC = () => {
           movieId={Number(movieId)}
           title={String(title)}
           genres={String(genres)}
+          userRating={rating ? Number(rating) : null}
         />
       </main>
     </>
