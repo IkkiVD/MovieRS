@@ -72,7 +72,7 @@ x = keras.layers.Dropout(0.05)(x)
 
 # Output layer 
 x = keras.layers.Dense(1)(x)
-x = keras.layers.Activation(activation='linear')(x)
+x = keras.layers.Activation(activation='sigmoid')(x)
 
 # Define the model
 model = keras.models.Model(inputs=[user,movie], outputs=x)

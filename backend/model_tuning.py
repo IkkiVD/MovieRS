@@ -36,7 +36,7 @@ def rebuild_model(n_users, n_movies, old_model=None):
     x = keras.layers.Dropout(0.05)(x)
 
     # Output layer
-    output = keras.layers.Dense(1, activation='linear')(x)
+    output = keras.layers.Dense(1, activation='sigmoid')(x)
 
     # Define the model
     new_model = keras.models.Model(inputs=[user_input, movie_input], outputs=output)
@@ -86,8 +86,10 @@ def retrain_model():
         y = refined_dataset['rating'].values
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=50)
 
-        X_train_array = [X_train[:, 0], X_train[:, 1]]
         y_train = y_train / 5
+        y_test = y_test / 5
+
+        X_train_array = [X_train[:, 0], X_train[:, 1]]
 
         # Fine-tune the model
         model.fit(x=X_train_array, y=y_train, batch_size=128, epochs=1, shuffle=True)
