@@ -9,3 +9,11 @@ export type Movie = {
   genres: string;
   prediction?: number;
 };
+
+export type Rating = {
+  userId: number;
+  movieId: number;
+  title: string;
+  genres: string;
+  rating: number;
+};

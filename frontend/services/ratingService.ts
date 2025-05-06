@@ -13,7 +13,7 @@ const giveRating = (userId: number, movieId: number, rating: number) => {
 };
 
 const getRatingsOfUser = (userId: number) => {
-  return fetch(process.env.NEXT_PUBLIC_API_URL + `ratings/${userId}`, {
+  return fetch(process.env.NEXT_PUBLIC_API_URL + `/ratings/${userId}`, {
     method: "GET",
 
     headers: {
