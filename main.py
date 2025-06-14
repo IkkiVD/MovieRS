@@ -33,7 +33,7 @@ X = refined_dataset[['user', 'movie']].values
 y = refined_dataset['rating'].values
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, random_state=50)
 
-n_factors = 150
+n_factors = 250
 
 X_train_array = [X_train[:, 0], X_train[:, 1]]
 X_test_array = [X_test[:, 0], X_test[:, 1]]
@@ -47,21 +47,25 @@ y_test = (y_test - min_rating)/(max_rating - min_rating)
 user = keras.layers.Input(shape = (1,))
 
 # Embedding layer for n_factors of users
-u = keras.layers.Embedding(n_users, n_factors, embeddings_initializer = 'he_normal', embeddings_regularizer = keras.regularizers.l2(1e-6))(user)
+u = keras.layers.Embedding(n_users, n_factors)(user)
 u = keras.layers.Reshape((n_factors,))(u)
 
 # Input layer for the movies
 movie = keras.layers.Input(shape = (1,))
 
 # Embedding layer for n_factors of movies
-m = keras.layers.Embedding(n_movies, n_factors, embeddings_initializer = 'he_normal', embeddings_regularizer= keras.regularizers.l2(1e-6))(movie)
+m = keras.layers.Embedding(n_movies, n_factors)(movie)
 m = keras.layers.Reshape((n_factors,))(m)
 
-# stacking up both user and movie embeddings
-x = keras.layers.Concatenate()([u,m])
+
+user_vec = keras.layers.Flatten()(u)
+movie_vec = keras.layers.Flatten()(m)
+
+# dot product to find similarities
+x = keras.layers.Dot(axes=1)([user_vec,movie_vec])
 x = keras.layers.Dropout(0.05)(x)
 
-# Adding a Dense layer to the architecture
+
 x = keras.layers.Dense(32, kernel_initializer='he_normal')(x)
 x = keras.layers.Activation(activation='relu')(x)
 x = keras.layers.Dropout(0.05)(x)
@@ -82,7 +86,19 @@ model.compile(optimizer='adam', loss='mse', metrics=['mae'])
 
 print(model.summary())
 
-early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, verbose=1)
+# early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, verbose=1)
 
-history = model.fit(x = X_train_array, y = y_train, batch_size=128, epochs=10, validation_data=(X_test_array, y_test), shuffle=True,callbacks=[early_stop])
+history = model.fit(x = X_train_array, y = y_train, batch_size=128, epochs=10, validation_data=(X_test_array, y_test), shuffle=True)
+
+plt.figure(figsize=(8, 5))
+plt.plot(history.history['loss'], label='Train loss')
+plt.plot(history.history['val_loss'], label='Validation loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.title('Model Loss History')
+plt.legend()
+plt.tight_layout()
+plt.savefig('training_history.png') 
+plt.close()
+
 model.save("data/movie_recommendation_model.keras")
