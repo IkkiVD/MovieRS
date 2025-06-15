@@ -65,7 +65,7 @@ The recommendation system is powered by a Deep Neural Network (DNN) that uses em
 
 5. **Output Layer**:
 
-   - A single neuron with a linear activation function predicts the rating for a given user-movie pair.
+   - A single neuron with a sigmoid activation function predicts the match (0-1) for a given user-movie pair.
 
 6. **Compilation**:
 
