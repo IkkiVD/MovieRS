@@ -6,6 +6,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+import tensorflow.keras.backend as K
 
 
 data_movies = pd.read_csv("data/movies.csv")
@@ -81,8 +82,11 @@ x = keras.layers.Activation(activation='sigmoid')(x)
 # Define the model
 model = keras.models.Model(inputs=[user,movie], outputs=x)
 
+def rmse(y_true, y_pred):
+    return K.sqrt(K.mean(K.square(y_pred - y_true)))
+
 # Compiling the model
-model.compile(optimizer='adam', loss='mse', metrics=['mae'])
+model.compile(optimizer='adam', loss=rmse, metrics=['mae'])
 
 print(model.summary())
 
