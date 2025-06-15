@@ -7,7 +7,12 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import tensorflow.keras.backend as K
+from keras.utils import register_keras_serializable
 
+
+@register_keras_serializable(package="Custom", name="rmse")
+def rmse(y_true, y_pred):
+    return K.sqrt(K.mean(K.square(y_pred - y_true)))
 
 data_movies = pd.read_csv("data/movies.csv")
 data_ratings = pd.read_csv("data/ratings.csv")
@@ -38,7 +43,7 @@ n_factors = 250
 
 X_train_array = [X_train[:, 0], X_train[:, 1]]
 X_test_array = [X_test[:, 0], X_test[:, 1]]
-
+ 
 y_train = (y_train - min_rating)/(max_rating - min_rating)
 y_test = (y_test - min_rating)/(max_rating - min_rating)
 
@@ -82,12 +87,8 @@ x = keras.layers.Activation(activation='sigmoid')(x)
 # Define the model
 model = keras.models.Model(inputs=[user,movie], outputs=x)
 
-def rmse(y_true, y_pred):
-    return K.sqrt(K.mean(K.square(y_pred - y_true)))
-
 # Compiling the model
 model.compile(optimizer='adam', loss=rmse, metrics=['mae'])
-
 print(model.summary())
 
 # early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=3, verbose=1)

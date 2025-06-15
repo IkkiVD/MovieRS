@@ -3,8 +3,16 @@ import pandas as pd
 import numpy as np
 import joblib
 import keras
+import tensorflow as tf
+from keras.models import load_model
+from keras.utils import register_keras_serializable
+from keras import backend as K
 
-global_model = keras.saving.load_model('data/movie_recommendation_model.keras')
+@register_keras_serializable(package="Custom", name="rmse")
+def rmse(y_true, y_pred):
+    return K.sqrt(K.mean(K.square(y_pred - y_true)))
+
+global_model = load_model("data/movie_recommendation_model.keras", custom_objects={"rmse": rmse})
 movies_df = pd.read_csv('data/movies.csv')
 user_enc = joblib.load('data/user_enc.pkl')
 item_enc = joblib.load('data/item_enc.pkl')
