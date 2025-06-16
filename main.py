@@ -6,8 +6,8 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
-import tensorflow.keras.backend as K
-from keras.utils import register_keras_serializable
+import tensorflow.keras.backend as K #type:ignore
+from keras.utils import register_keras_serializable #type:ignore
 
 
 @register_keras_serializable(package="Custom", name="rmse")
